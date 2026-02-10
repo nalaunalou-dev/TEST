@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quelle récompense mérites-tu ?</title>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000;
+            --text-color: #fff;
+            --accent-color: #ff0000;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            background-image: url('background.jpg'); /* Votre image ici */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            font-family: 'MedievalSharp', cursive;
+            text-align: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 10px; }
+        p.intro { font-size: 1.1rem; margin-bottom: 20px; }
+
+        .question { color: var(--accent-color); font-size: 1.4rem; margin-top: 20px; display: none; }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: black;
+            color: white;
+            border: 2px solid white;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #333; color: #777; border-color: #777; cursor: not-allowed; }
+
+        #results { display: none; margin-top: 30px; }
+        .links a {
+            display: block;
+            color: gold;
+            text-decoration: none;
+            margin: 10px 0;
+            font-size: 1.2rem;
+            border: 1px solid gold;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Quelle récompense mérite tu ?</h1>
+    <p class="intro">Tu aura 3 choix face à toi. Ils détermineront ta récompense.</p>
+    
+    <button id="start-btn" class="btn" onclick="startQuiz()">Let's Go</button>
+
+    <div id="q1" class="question">
+        <p>Tu es dans la forêt. Tu entends un bruit :</p>
+        <button class="btn" onclick="next(1, 1)">C'est le rugissement d'un ours</button>
+        <button class="btn" onclick="next(1, 2)">C'est le chant d'un oiseau</button>
+    </div>
+
+    <div id="q2" class="question">
+        <p>En cas de danger, tu as prévu :</p>
+        <button class="btn" onclick="next(2, 1)">Une arme pour te défendre</button>
+        <button class="btn" onclick="next(2, 2)">De parler doucement pour faire descendre la tension</button>
+    </div>
+
+    <div id="q3" class="question">
+        <p>On dit toujours de toi que tu as une personnalité :</p>
+        <button class="btn" onclick="next(3, 1)">Rugueuse, tendue</button>
+        <button class="btn" onclick="next(3, 2)">Douce, harmonisée</button>
+    </div>
+
+    <div id="results">
+        <h2 id="version-title"></h2>
+        <div class="links" id="links-container"></div>
+    </div>
+</div>
+
+<script>
+    let score = 0;
+
+    function startQuiz() {
+        document.getElementById('start-btn').disabled = true;
+        document.getElementById('q1').style.display = 'block';
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function next(currentQ, points) {
+        if(points === 1) score++; // On compte les réponses type 1
+        
+        document.getElementById('q' + currentQ).style.display = 'none';
+        
+        if (currentQ < 3) {
+            document.getElementById('q' + (currentQ + 1)).style.display = 'block';
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        const resDiv = document.getElementById('results');
+        const title = document.getElementById('version-title');
+        const container = document.getElementById('links-container');
+        resDiv.style.display = 'block';
+
+        // Logique : Majorité de 1 (score >= 2) = Chrome, sinon Gold
+        if (score >= 2) {
+            title.innerText = "Récompense : Version CHROME";
+            container.innerHTML = `
+                <a href="LIEN_YT_CHROME">YouTube</a>
+                <a href="LIEN_SPOTIFY_CHROME">Spotify</a>
+                <a href="LIEN_DEEZER_CHROME">Deezer</a>
+                <a href="LIEN_APPLE_CHROME">Apple Music</a>`;
+        } else {
+            title.innerText = "Récompense : Version GOLD";
+            container.innerHTML = `
+                <a href="LIEN_YT_GOLD">YouTube</a>
+                <a href="LIEN_SPOTIFY_GOLD">Spotify</a>
+                <a href="LIEN_DEEZER_GOLD">Deezer</a>
+                <a href="LIEN_APPLE_GOLD">Apple Music</a>`;
+        }
+    }
+</script>
+
+</body>
+</html>
