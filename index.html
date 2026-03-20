@@ -5,146 +5,219 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quelle récompense mérites-tu ?</title>
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    
     <style>
+        /* STYLE CSS */
         :root {
-            --bg-color: #000;
-            --text-color: #fff;
-            --accent-color: #ff0000;
+            --bg-overlay: rgba(0, 0, 0, 0.85); /* Fond noir semi-transparent pour lire le texte */
+            --accent-red: #ff0000;
+            --white: #ffffff;
         }
 
         body {
             margin: 0;
-            padding: 20px;
-            background-color: var(--bg-color);
-            background-image: url('background.jpg'); /* Votre image ici */
+            padding: 0;
+            background-color: black;
+            /* L'image doit s'appeler background.jpg dans votre GitHub */
+            background-image: url('background.jpg'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            color: var(--text-color);
-            font-family: 'MedievalSharp', cursive;
-            text-align: center;
+            color: var(--white);
+            font-family: 'MedievalSharp', cursive; /* Écriture Gothique */
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            text-align: center;
         }
 
-        .container {
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 10px;
+        #main-container {
+            background-color: var(--bg-overlay);
+            width: 90%;
             max-width: 500px;
-            margin: 0 auto;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        h1 { font-size: 1.8rem; margin-bottom: 10px; }
-        p.intro { font-size: 1.1rem; margin-bottom: 20px; }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
-        .question { color: var(--accent-color); font-size: 1.4rem; margin-top: 20px; display: none; }
+        .intro-text {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
 
-        .btn {
+        /* Questions en rouge comme demandé */
+        .question-text {
+            color: var(--accent-red);
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        /* Boutons (Hitboxes encadrées) */
+        button {
             display: block;
             width: 100%;
+            background: none;
+            border: 2px solid var(--white);
+            color: var(--white);
             padding: 15px;
-            margin: 10px 0;
-            background: black;
-            color: white;
-            border: 2px solid white;
-            font-family: 'MedievalSharp', cursive;
-            font-size: 1rem;
+            margin: 15px 0;
             cursor: pointer;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--white);
+            color: black;
+        }
+
+        button:disabled {
+            border-color: #555;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #result h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: gold; /* Couleur or pour le titre final */
+        }
+
+        .links-container a {
+            display: inline-block;
+            color: var(--white);
+            text-decoration: none;
+            border: 1px solid var(--white);
+            padding: 10px 20px;
+            margin: 8px;
+            width: 80%;
             transition: 0.3s;
         }
 
-        .btn:active { transform: scale(0.98); }
-        .btn:disabled { background: #333; color: #777; border-color: #777; cursor: not-allowed; }
+        .links-container a:hover {
+            background: var(--white);
+            color: black;
+        }
 
-        #results { display: none; margin-top: 30px; }
-        .links a {
-            display: block;
-            color: gold;
-            text-decoration: none;
-            margin: 10px 0;
-            font-size: 1.2rem;
-            border: 1px solid gold;
-            padding: 10px;
+        /* Optimisation Mobile */
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5rem; }
+            .question-text { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Quelle récompense mérite tu ?</h1>
-    <p class="intro">Tu aura 3 choix face à toi. Ils détermineront ta récompense.</p>
-    
-    <button id="start-btn" class="btn" onclick="startQuiz()">Let's Go</button>
+    <div id="main-container">
+        <div id="intro">
+            <h1>Quelle récompense mérite tu ?</h1>
+            <p class="intro-text">Tu aura 3 choix face à toi. Ils détermineront ta récompense.</p>
+            <button id="start-btn" onclick="startQuiz()">LET'S GO</button>
+        </div>
 
-    <div id="q1" class="question">
-        <p>Tu es dans la forêt. Tu entends un bruit :</p>
-        <button class="btn" onclick="next(1, 1)">C'est le rugissement d'un ours</button>
-        <button class="btn" onclick="next(1, 2)">C'est le chant d'un oiseau</button>
+        <div id="quiz" class="hidden">
+            <div class="question" id="q1">
+                <span class="question-text">Tu es dans la forêt. Tu entends un bruit :</span>
+                <button onclick="answer('cru')">C'est le rugissement d'un ours</button>
+                <button onclick="answer('doux')">C'est le chant d'un oiseau</button>
+            </div>
+
+            <div class="question hidden" id="q2">
+                <span class="question-text">En cas de danger, tu serai un personnage :</span>
+                <button onclick="answer('cru')">Badass et dark</button>
+                <button onclick="answer('doux')">Ornementé</button>
+            </div>
+
+            <div class="question hidden" id="q3">
+                <span class="question-text">La bête est là, elle est :</span>
+                <button onclick="answer('cru')">Réelle, palpable</button>
+                <button onclick="answer('doux')">Imaginaire, évasif</button>
+            </div>
+        </div>
+
+        <div id="result" class="hidden">
+            <div id="result-content"></div>
+        </div>
     </div>
 
-    <div id="q2" class="question">
-        <p>En cas de danger, tu as prévu :</p>
-        <button class="btn" onclick="next(2, 1)">Une arme pour te défendre</button>
-        <button class="btn" onclick="next(2, 2)">De parler doucement pour faire descendre la tension</button>
-    </div>
+    <script>
+        /* SCRIPT JS */
+        let scoreCru = 0;
+        let scoreDoux = 0;
+        let currentQuestion = 1;
 
-    <div id="q3" class="question">
-        <p>On dit toujours de toi que tu as une personnalité :</p>
-        <button class="btn" onclick="next(3, 1)">Rugueuse, tendue</button>
-        <button class="btn" onclick="next(3, 2)">Douce, harmonisée</button>
-    </div>
-
-    <div id="results">
-        <h2 id="version-title"></h2>
-        <div class="links" id="links-container"></div>
-    </div>
-</div>
-
-<script>
-    let score = 0;
-
-    function startQuiz() {
-        document.getElementById('start-btn').disabled = true;
-        document.getElementById('q1').style.display = 'block';
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    function next(currentQ, points) {
-        if(points === 1) score++; // On compte les réponses type 1
-        
-        document.getElementById('q' + currentQ).style.display = 'none';
-        
-        if (currentQ < 3) {
-            document.getElementById('q' + (currentQ + 1)).style.display = 'block';
-        } else {
-            showResults();
+        function startQuiz() {
+            // Grise le bouton et lance le quiz
+            const startBtn = document.getElementById('start-btn');
+            startBtn.disabled = true;
+            startBtn.innerText = "Chargement...";
+            
+            setTimeout(() => {
+                document.getElementById('intro').classList.add('hidden');
+                document.getElementById('quiz').classList.remove('hidden');
+            }, 500);
         }
-    }
 
-    function showResults() {
-        const resDiv = document.getElementById('results');
-        const title = document.getElementById('version-title');
-        const container = document.getElementById('links-container');
-        resDiv.style.display = 'block';
+        function answer(type) {
+            if (type === 'cru') scoreCru++;
+            if (type === 'doux') scoreDoux++;
 
-        // Logique : Majorité de 1 (score >= 2) = Chrome, sinon Gold
-        if (score >= 2) {
-            title.innerText = "Récompense : Version CHROME";
-            container.innerHTML = `
-                <a href="LIEN_YT_CHROME">YouTube</a>
-                <a href="LIEN_SPOTIFY_CHROME">Spotify</a>
-                <a href="LIEN_DEEZER_CHROME">Deezer</a>
-                <a href="LIEN_APPLE_CHROME">Apple Music</a>`;
-        } else {
-            title.innerText = "Récompense : Version GOLD";
-            container.innerHTML = `
-                <a href="LIEN_YT_GOLD">YouTube</a>
-                <a href="LIEN_SPOTIFY_GOLD">Spotify</a>
-                <a href="LIEN_DEEZER_GOLD">Deezer</a>
-                <a href="LIEN_APPLE_GOLD">Apple Music</a>`;
+            // Masque la question actuelle
+            document.getElementById(`q${currentQuestion}`).classList.add('hidden');
+            currentQuestion++;
+
+            if (currentQuestion <= 3) {
+                // Affiche la suivante
+                document.getElementById(`q${currentQuestion}`).classList.remove('hidden');
+            } else {
+                showResult();
+            }
         }
-    }
-</script>
 
+        function showResult() {
+            document.getElementById('quiz').classList.add('hidden');
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('result-content');
+            resultDiv.classList.remove('hidden');
+
+            if (scoreCru > scoreDoux) {
+                resultContent.innerHTML = `
+                    <h2>Version CHROME</h2>
+                    <p>Dans une grotte sombre où l'air semble suspendu, vous vous sentez observé, la bête rôde.</p>
+                    <div class="links-container">
+                        <a href="https://www.youtube.com/watch?v=JGgbWu4WDDw&list=OLAK5uy_k4VzMNh5QwFC7a3HhJw-vFHGuVSd9hzLU" target="_blank">YOUTUBE</a>
+                        <a href="https://spotify.com" target="_blank">SPOTIFY</a>
+                        <a href="https://deezer.com" target="_blank">DEEZER</a>
+                        <a href="https://music.apple.com/fr/album/la-b%C3%AAte-chrome/1880880827?i=1880880829" target="_blank">APPLE MUSIC</a>
+                    </div>
+                `;
+            } else {
+                resultContent.innerHTML = `
+                    <h2>Version GOLD</h2>
+                    <p>Dans une prairie en plein jour, le monstre n'est pas celui que vous croyez. Les petites voix dans votre tête vont-elles se coordonner ?</p>
+                    <div class="links-container">
+                        <a href="https://www.youtube.com/watch?v=jDt-CiZFL3E&list=OLAK5uy_k4VzMNh5QwFC7a3HhJw-vFHGuVSd9hzLU&index=2" target="_blank">YOUTUBE</a>
+                        <a href="https://spotify.com" target="_blank">SPOTIFY</a>
+                        <a href="https://deezer.com" target="_blank">DEEZER</a>
+                        <a href="https://music.apple.com/fr/song/la-b%C3%AAte-gold/1880880832" target="_blank">APPLE MUSIC</a>
+                    </div>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>
