@@ -7,30 +7,53 @@
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     
     <style>
-        /* STYLE CSS */
         :root {
-            --bg-overlay: rgba(0, 0, 0, 0.85); /* Fond noir semi-transparent pour lire le texte */
+            --bg-overlay: rgba(0, 0, 0, 0.85);
             --accent-red: #ff0000;
             --white: #ffffff;
+            --chrome-silver: #C0C0C0;
+            --gold-yellow: #FFD700;
         }
 
         body {
             margin: 0;
             padding: 0;
             background-color: black;
-            /* L'image doit s'appeler background.jpg dans votre GitHub */
             background-image: url('background.jpg'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: var(--white);
-            font-family: 'MedievalSharp', cursive; /* Écriture Gothique */
+            font-family: 'MedievalSharp', cursive;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             text-align: center;
         }
+
+        /* --- COMPTEURS EN HAUT À DROITE --- */
+        #stats-header {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 12px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .visit-count { color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .chrome-count { background: var(--chrome-silver); color: var(--white); border: 1px solid white; }
+        .gold-count { background: var(--gold-yellow); color: var(--white); border: 1px solid white; }
 
         #main-container {
             background-color: var(--bg-overlay);
@@ -39,29 +62,13 @@
             padding: 30px;
             border-radius: 5px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin-top: 60px; /* Espace pour les compteurs sur mobile */
         }
 
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        h1 { font-size: 1.8rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        .intro-text { margin-bottom: 30px; font-size: 1.1rem; }
+        .question-text { color: var(--accent-red); font-size: 1.4rem; margin-bottom: 25px; display: block; }
 
-        .intro-text {
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-
-        /* Questions en rouge comme demandé */
-        .question-text {
-            color: var(--accent-red);
-            font-size: 1.4rem;
-            margin-bottom: 25px;
-            display: block;
-        }
-
-        /* Boutons (Hitboxes encadrées) */
         button {
             display: block;
             width: 100%;
@@ -76,27 +83,11 @@
             transition: all 0.3s;
         }
 
-        button:hover {
-            background-color: var(--white);
-            color: black;
-        }
+        button:hover { background-color: var(--white); color: black; }
+        button:disabled { border-color: #555; color: #555; cursor: not-allowed; }
+        .hidden { display: none; }
 
-        button:disabled {
-            border-color: #555;
-            color: #555;
-            cursor: not-allowed;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        #result h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: gold; /* Couleur or pour le titre final */
-        }
-
+        #result h2 { font-size: 2rem; margin-bottom: 20px; color: gold; }
         .links-container a {
             display: inline-block;
             color: var(--white);
@@ -107,20 +98,22 @@
             width: 80%;
             transition: 0.3s;
         }
+        .links-container a:hover { background: var(--white); color: black; }
 
-        .links-container a:hover {
-            background: var(--white);
-            color: black;
-        }
-
-        /* Optimisation Mobile */
         @media (max-width: 480px) {
             h1 { font-size: 1.5rem; }
             .question-text { font-size: 1.2rem; }
+            #stats-header { font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
+
+    <div id="stats-header">
+        <div class="stat-box visit-count">Visites: <span id="v-total">0</span></div>
+        <div class="stat-box chrome-count">Nombre CHROME: <span id="v-chrome">0</span></div>
+        <div class="stat-box gold-count">Nombre GOLD: <span id="v-gold">0</span></div>
+    </div>
 
     <div id="main-container">
         <div id="intro">
@@ -135,13 +128,11 @@
                 <button onclick="answer('cru')">C'est le rugissement d'un ours</button>
                 <button onclick="answer('doux')">C'est le chant d'un oiseau</button>
             </div>
-
             <div class="question hidden" id="q2">
                 <span class="question-text">En cas de danger, tu serai un personnage :</span>
                 <button onclick="answer('cru')">Badass et dark</button>
                 <button onclick="answer('doux')">Ornementé</button>
             </div>
-
             <div class="question hidden" id="q3">
                 <span class="question-text">La bête est là, elle est :</span>
                 <button onclick="answer('cru')">Réelle, palpable</button>
@@ -155,17 +146,29 @@
     </div>
 
     <script>
-        /* SCRIPT JS */
         let scoreCru = 0;
         let scoreDoux = 0;
         let currentQuestion = 1;
 
+        // --- LOGIQUE DES COMPTEURS ---
+        window.onload = function() {
+            // Incrémenter les visites
+            let visits = localStorage.getItem('totalVisits') || 0;
+            visits++;
+            localStorage.setItem('totalVisits', visits);
+            updateStatsDisplay();
+        };
+
+        function updateStatsDisplay() {
+            document.getElementById('v-total').innerText = localStorage.getItem('totalVisits') || 0;
+            document.getElementById('v-chrome').innerText = localStorage.getItem('countChrome') || 0;
+            document.getElementById('v-gold').innerText = localStorage.getItem('countGold') || 0;
+        }
+
         function startQuiz() {
-            // Grise le bouton et lance le quiz
             const startBtn = document.getElementById('start-btn');
             startBtn.disabled = true;
             startBtn.innerText = "Chargement...";
-            
             setTimeout(() => {
                 document.getElementById('intro').classList.add('hidden');
                 document.getElementById('quiz').classList.remove('hidden');
@@ -175,13 +178,9 @@
         function answer(type) {
             if (type === 'cru') scoreCru++;
             if (type === 'doux') scoreDoux++;
-
-            // Masque la question actuelle
             document.getElementById(`q${currentQuestion}`).classList.add('hidden');
             currentQuestion++;
-
             if (currentQuestion <= 3) {
-                // Affiche la suivante
                 document.getElementById(`q${currentQuestion}`).classList.remove('hidden');
             } else {
                 showResult();
@@ -195,28 +194,35 @@
             resultDiv.classList.remove('hidden');
 
             if (scoreCru > scoreDoux) {
+                // Sauvegarde Chrome
+                let c = parseInt(localStorage.getItem('countChrome') || 0);
+                localStorage.setItem('countChrome', c + 1);
+                
                 resultContent.innerHTML = `
                     <h2>Version CHROME</h2>
                     <p>Dans une grotte sombre où l'air semble suspendu, vous vous sentez observé, la bête rôde.</p>
                     <div class="links-container">
                         <a href="https://www.youtube.com/watch?v=JGgbWu4WDDw&list=OLAK5uy_k4VzMNh5QwFC7a3HhJw-vFHGuVSd9hzLU" target="_blank">YOUTUBE</a>
-                        <a href="https://open.spotify.com/intl-fr/track/0MZY7VUQzUoC4ibyv1KiWE" target="_blank">SPOTIFY</a>
+                        <a href="#" target="_blank">SPOTIFY</a>
                         <a href="https://link.deezer.com/s/32LftqTbYhmfDakM4Vco8" target="_blank">DEEZER</a>
                         <a href="https://music.apple.com/fr/album/la-b%C3%AAte-chrome/1880880827?i=1880880829" target="_blank">APPLE MUSIC</a>
-                    </div>
-                `;
+                    </div>`;
             } else {
+                // Sauvegarde Gold
+                let g = parseInt(localStorage.getItem('countGold') || 0);
+                localStorage.setItem('countGold', g + 1);
+
                 resultContent.innerHTML = `
                     <h2>Version GOLD</h2>
-                    <p>Dans une prairie en plein jour, le monstre n'est pas celui que vous croyez. Les petites voix dans votre tête vont-elles se coordonner ?</p>
+                    <p>Dans une prairie en plein jour, le monstre n'est pas celui que vous croyez.</p>
                     <div class="links-container">
                         <a href="https://www.youtube.com/watch?v=jDt-CiZFL3E&list=OLAK5uy_k4VzMNh5QwFC7a3HhJw-vFHGuVSd9hzLU&index=2" target="_blank">YOUTUBE</a>
-                        <a href="https://open.spotify.com/intl-fr/track/52A7NP9FTFszAv194su7Zj?si=a1b5f985452e420d">SPOTIFY</a>
+                        <a href="#" target="_blank">SPOTIFY</a>
                         <a href="https://link.deezer.com/s/32LfuxSekSiTn7DfToBRy" target="_blank">DEEZER</a>
                         <a href="https://music.apple.com/fr/song/la-b%C3%AAte-gold/1880880832" target="_blank">APPLE MUSIC</a>
-                    </div>
-                `;
+                    </div>`;
             }
+            updateStatsDisplay();
         }
     </script>
 </body>
